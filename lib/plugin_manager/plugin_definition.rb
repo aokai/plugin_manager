@@ -6,7 +6,8 @@ class PluginManager
                   :object_string,
                   :file,
                   :dependencies,
-                  :definition_file
+                  :definition_file,
+                  :gems
                   
     def inspect1              
       "<Plugin #{name} #{version} depends:[#{(dependencies||[]).map{|dep| dep.join("")}.join(", ")}] #{required_files.length} files>"
@@ -20,13 +21,23 @@ class PluginManager
       @required_files ||= []
     end
     
+    def gems
+  		@gems ||= []
+  	end
+    
     def load
       required_files.each {|file| $".delete(file) }
       load_file = File.expand_path(File.join(File.dirname(definition_file), file))
       $:.unshift(File.dirname(load_file))
+      puts load_file
       new_files = log_requires do
         require load_file
       end
+            
+      gems.each do |gem|
+      	TipperTruck.gem gem[0]
+      end
+      
       required_files.unshift(*new_files)
       if object.respond_to?(:loaded)
         object.loaded

@@ -27,6 +27,10 @@ class PluginManager
       @definition.file = values
     end
     
+    def gem name, ver=""
+    	@definition.gems << [name,ver]
+    end
+    
     def dependencies(*deps)
       @definition.dependencies ||= []
       deps.each_slice(2) do |name, ver|
