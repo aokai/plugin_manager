@@ -1,23 +1,33 @@
 require 'rubygems'
+require 'rubygems/dependency_installer'
 
-# This loads and installs gems if needed. This is stolen from: 
+# This loads and installs gems if needed. This is stolen and modified from: 
 # http://github.com/mdub/gem_collector/blob/master/lib/gem_collector.rb
 class TipperTruck
-	class << self
-		def gem(name, version_requirements=nil)
-	    dependency = Gem::Dependency.new(name, version_requirements)
-	    if Gem.source_index.search(dependency).empty?
-	      puts "Installing #{dependency}"
-	      installer.install(dependency)
-	    else
-	      puts "#{dependency} is already installed"
-	    end
+
+	def self.get
+		@truck ||= TipperTruck.new
+	end
+	
+	def initialize home = nil
+	  if home
+	  	Gem.use_paths(home,[home])
 	  end
+	end
+	
+	def gem(name, requirements = ">= 0")
+	  if !Gem.available? name, requirements
+	    puts "Installing #{name} with version #{requirements}"
+        installer.install(name, requirements)
+      else
+	    puts "#{name} with version #{requirements} is already installed"
+	  end
+	end
 	 
 	  # Evaluate a block (or String) in a context that auto-installs missing gems
-	  def eval(*args)
-	    instance_eval(*args)
-	  end
+	def eval(*args)
+	  instance_eval(*args)
+	end
 	 
   # Load a Ruby file, auto-installing missing gems
   	def load(file)
@@ -27,16 +37,6 @@ class TipperTruck
   	private
  
   	def installer
-    	@installer ||= TipperTruck.create_installer
+  		@installer ||= Gem::DependencyInstaller.new 
   	end
- 
-  	def create_installer
-    	begin
-      	require 'rubygems/dependency_installer'
-    	rescue LoadError
-      	raise %{ERROR: RubyGems installation is too old; please run "sudo gem update --system"}
-    	end
-    	Gem::DependencyInstaller.new
-  	end
-  end
 end

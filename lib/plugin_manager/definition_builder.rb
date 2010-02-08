@@ -27,7 +27,7 @@ class PluginManager
       @definition.file = values
     end
     
-    def gem name, ver=""
+    def gem name, ver=">= 0"
     	@definition.gems << [name,ver]
     end
     

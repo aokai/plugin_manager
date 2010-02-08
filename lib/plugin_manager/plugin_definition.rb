@@ -35,7 +35,7 @@ class PluginManager
       end
             
       gems.each do |gem|
-      	TipperTruck.gem gem[0]
+      	TipperTruck.get.gem gem[0],gem[1]
       end
       
       required_files.unshift(*new_files)
